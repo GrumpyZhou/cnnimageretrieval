@@ -89,5 +89,6 @@ for d = 1:numel(test_datasets)
     sim = vecsLw'*qvecsLw;
     [sim, ranks] = sort(sim, 'descend');
     idx_file = fullfile(result_dir,  sprintf('%s-vgg-%s-%d-knn.mat', dataset, whiten_tp, test_imdim));
-    save(idx_file, 'ranks');
+    save(idx_file, 'sim');
+    save(idx_file, 'ranks', '-append');
 end
