@@ -12,9 +12,6 @@ cambridge_root = '/usr/stud/zhouq/CambridgeLandmark';
 test_datasets = {'ShopFacade', 'KingsCollege', 'OldHospital', 'StMarysChurch'};  % list of datasets to evaluate on
 test_imdim = 1024;  % choose test image dimensionality
 
-% Set path to store the result
-result_dir = fullfile(data_root, 'cambridge');
-
 % Network configuration
 %network_file = fullfile(data_root, 'networks', 'retrieval-SfM-30k', 'retrievalSfM30k-siamac-alex.mat'); % fine-tuned CNN network (siamac-alex or siamac-vgg)
 network_file = fullfile(data_root, 'networks', 'retrieval-SfM-30k', 'retrievalSfM30k-siamac-vgg.mat');
@@ -34,7 +31,7 @@ load(network_file);
 net = dagnn.DagNN.loadobj(net);
 if use_gpu,     gpuDevice(use_gpu); net.move('gpu'); end
 
-to_extract = 0;
+to_extract = 1;
 %---------------------------------------------------------------------
 % Load whitening variables
 %---------------------------------------------------------------------
@@ -47,35 +44,40 @@ Lw = whiten.Lw;
 %---------------------------------------------------------------------
 % Extract descriptor for testing imgs and evaluate
 %---------------------------------------------------------------------
+% Set path to store the result
+result_dir = fullfile(data_root, 'cambridge', sprintf('vgg-%s-%d', whiten_tp, test_imdim));
+if ~exist(result_dir, 'dir')
+    mkdir(result_dir);
+end
 % extract and evaluate
 for d = 1:numel(test_datasets)
     dataset = test_datasets{d};
-    res_file = fullfile(result_dir,  sprintf('%s-vgg-%s-%d.mat', dataset, whiten_tp, test_imdim));
+    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));
     fprintf('>> %s: Processing test dataset...\n', dataset);
     if to_extract
-        [test_path, test_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_test.txt'); % query images
-        [train_path, train_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_train.txt'); % train images
-
+        [train_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_train.txt'); % train images
         fprintf('>> %s: Extracting CNN descriptors for training images...\n', dataset); 
         progressbar(0); vecs = [];   
         for i = 1:n
-            vecs{i} = descfun(imresizemaxd(imread(train_path{i}), test_imdim, 0), net);
+            vecs{i} = descfun(imresizemaxd(imread(train_im{i}), test_imdim, 0), net);
             progressbar(i/n);
         end
         vecs = cell2mat(vecs);
-        save(res_file, 'vecs');
+        save(desc_file, 'vecs');
 
+	[test_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_test.txt'); % query images
         fprintf('>> %s: Extracting CNN descriptors for query/test images...\n', dataset); 
         progressbar(0); qvecs = [];	
         for i = 1:n
-            qvecs{i} = descfun(imresizemaxd(imread(test_path{i}), test_imdim, 0), net);
+            qvecs{i} = descfun(imresizemaxd(imread(test_im{i}), test_imdim, 0), net);
             progressbar(i/n);
         end
         qvecs = cell2mat(qvecs);
-        save(res_file, 'qvecs', '-append');   
+        save(desc_file, 'qvecs', '-append');   
+	fprintf('>> Save cnn descriptors to %s', desc_file);
     else
         fprintf('>> %s: Load pre-saved descriptors for training and query/test images...\n', dataset); 
-        res = load(res_file);
+        res = load(desc_file);
         vecs = res.vecs;
         qvecs = res.qvecs;
     end
@@ -88,7 +90,8 @@ for d = 1:numel(test_datasets)
     % with learned whitening
     sim = vecsLw'*qvecsLw;
     [sim, ranks] = sort(sim, 'descend');
-    idx_file = fullfile(result_dir,  sprintf('%s-vgg-%s-%d-knn.mat', dataset, whiten_tp, test_imdim));
+    idx_file = fullfile(result_dir,  sprintf('%s-knn.mat', dataset));
     save(idx_file, 'sim');
     save(idx_file, 'ranks', '-append');
+    fprintf('>> Save knn result to %s', idx_file);
 end

@@ -12,8 +12,8 @@ ims_whiten_dir = fullfile(data_root, 'train', 'ims');
 test_imdim = 1024;  % choose test image dimensionality
 
 % Load training data filenames and pairs for whitening
-%train_whiten_file = fullfile(data_root, 'train', 'dbs', 'retrieval-SfM-30k-whiten.mat'); % less images, faster
-train_whiten_file = fullfile(data_root, 'train', 'dbs', 'retrieval-SfM-120k-whiten.mat'); % more images, a bit better results but slower
+train_whiten_file = fullfile(data_root, 'train', 'dbs', 'retrieval-SfM-30k-whiten.mat'); % less images, faster
+%train_whiten_file = fullfile(data_root, 'train', 'dbs', 'retrieval-SfM-120k-whiten.mat'); % more images, a bit better results but slower
 train_whiten = load(train_whiten_file);
 cids  = train_whiten.cids; 
 qidxs = train_whiten.qidxs; % query indexes 
@@ -22,7 +22,7 @@ pidxs = train_whiten.pidxs; % positive indexes
 % Network configuration
 %network_file = fullfile(data_root, 'networks', 'retrieval-SfM-30k', 'retrievalSfM30k-siamac-alex.mat'); % fine-tuned CNN network (siamac-alex or siamac-vgg)
 network_file = fullfile(data_root, 'networks', 'retrieval-SfM-30k', 'retrievalSfM30k-siamac-vgg.mat');
-use_rvec = 0;  % use R-MAC, otherwise use MAC
+use_rvec = 1;  % use R-MAC, otherwise use MAC
 use_gpu = 1;  % use GPU (GPUID = use_gpu), otherwise use CPU
 to_extract = 1; % whether extract descriptor, if not load desc_file
 
@@ -43,7 +43,7 @@ if use_gpu,	gpuDevice(use_gpu); net.move('gpu'); end
 % Extract/Load descriptors
 %---------------------------------------------------------------------
 if use_rvec, whiten_tp = 'rmac'; else, whiten_tp = 'mac'; end 
-whiten_file = fullfile(data_root, 'whiten',  sprintf('Sfm120k-vgg-%s.mat',whiten_tp));
+whiten_file = fullfile(data_root, 'whiten',  sprintf('Sfm30k-vgg-%s.mat',whiten_tp));
 
 if to_extract
     % Extract CNN descriptors 
