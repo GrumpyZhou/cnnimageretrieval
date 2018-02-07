@@ -1,51 +1,42 @@
 clear;
 
 %---------------------------------------------------------------------
-% Set data folder and testing parameters
+% Setup datasets
 %---------------------------------------------------------------------
-
-% Set data folder, change if you have downloaded the data somewhere else
 data_root = fullfile(get_root_cnnimageretrieval(), 'data');
 cambridge_root = '/usr/stud/zhouq/CambridgeLandmark';
-
-% Set test options
 test_datasets = {'ShopFacade', 'KingsCollege', 'OldHospital', 'StMarysChurch'};  % list of datasets to evaluate on
 %---------------------------------------------------------------------
 % Load whitening variables
 %---------------------------------------------------------------------
-% Choose training data for whitening and set up data folder
 whiten_file = fullfile(data_root, 'whiten', 'Sfm120k-vgg-mac.mat');
 whiten = load(whiten_file);
 Lw = whiten.Lw;
 
 %---------------------------------------------------------------------
-% Extract descriptor for testing imgs and evaluate
+% Calculate similarity matrix for training pairs
 %---------------------------------------------------------------------
 % Set path to store the result
-result_dir = fullfile(data_root, 'cambridge-train', 'vgg-mac-1024');
+result_dir = fullfile(data_root, 'cambridge');
 if ~exist(result_dir, 'dir')
     mkdir(result_dir);
 end
-% extract and evaluate
 for d = 1:numel(test_datasets)
     dataset = test_datasets{d};
-    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));
+    desc_file = fullfile(result_dir, 'vgg-mac-1024-desc', sprintf('%s.mat', dataset));
     fprintf('>> %s: Load pre-saved descriptors for training and query/test images...\n', dataset); 
     res = load(desc_file);
     vecs = res.vecs;
-    qvecs = res.vecs; % queries images are also training images
+    qvecs = res.qvecs; 
+    vecsLw = whitenapply(vecs, Lw.m, Lw.P); % Apply whitening on database descriptors
+    qvecsLw = whitenapply(qvecs, Lw.m, Lw.P); % Apply whitening on query descriptors
 
-    vecsLw = whitenapply(vecs, Lw.m, Lw.P); % apply whitening on database descriptors
-    qvecsLw = whitenapply(qvecs, Lw.m, Lw.P); % apply whitening on query descriptors
-
-    % Find k-nearest neighbours
+    % Find k-nearest neighbours by calculating similarity 
     fprintf('>> %s: K-NearestNeighbour Retrieval...\n', dataset);
-    % with learned whitening
     sim = vecsLw'*qvecsLw;
     [sim, ranks] = sort(sim, 'descend');
-    idx_file = fullfile(result_dir,  sprintf('%s-knn.mat', dataset));
+    idx_file = fullfile(result_dir, 'test', sprintf('%s-knn.mat', dataset));
     save(idx_file, 'sim');
     save(idx_file, 'ranks', '-append');
     fprintf('>> Save knn result to %s', idx_file);
 end
-
