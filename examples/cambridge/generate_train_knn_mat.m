@@ -4,7 +4,6 @@ clear;
 % Setup datasets
 %---------------------------------------------------------------------
 data_root = fullfile(get_root_cnnimageretrieval(), 'data');
-cambridge_root = '/usr/stud/zhouq/CambridgeLandmark';
 test_datasets = {'ShopFacade', 'KingsCollege', 'OldHospital', 'StMarysChurch'};  % list of datasets to evaluate on
 %---------------------------------------------------------------------
 % Load whitening variables
