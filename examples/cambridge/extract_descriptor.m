@@ -38,6 +38,7 @@ end
 for d = 1:numel(test_datasets)
     dataset = test_datasets{d};
     fprintf('>> %s: Processing test dataset...\n', dataset);
+    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));    
 
     % Extract training images descriptors
     [train_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_train.txt'); 
@@ -51,7 +52,7 @@ for d = 1:numel(test_datasets)
     save(desc_file, 'vecs');
 
     % Extract training images descriptors
-	[test_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_test.txt');
+    [test_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_test.txt');
     fprintf('>> %s: Extracting CNN descriptors for query/test images...\n', dataset); 
     progressbar(0); qvecs = [];	
     for i = 1:n
@@ -62,6 +63,5 @@ for d = 1:numel(test_datasets)
     save(desc_file, 'qvecs', '-append');   
 
     % Save feature vectors together in one .mat file
-    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));
-	fprintf('>> Save cnn descriptors to %s', desc_file);
+    fprintf('>> Save cnn descriptors to %s', desc_file);
 end

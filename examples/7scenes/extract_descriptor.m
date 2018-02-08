@@ -9,7 +9,7 @@ data_root = fullfile(get_root_cnnimageretrieval(), 'data');
 dataset_root = '/usr/stud/zhouq/7Scenes';
 
 % Set test options
-test_datasets = {'chess', 'heads', 'fire', 'office', 'pumpkin', 'redkitchen', 'stairs'};  % list of datasets to evaluate on
+test_datasets = {'heads', 'chess', 'fire', 'office', 'pumpkin', 'redkitchen', 'stairs'};  % list of datasets to evaluate on
 test_imdim = 1024;  % Resizes image so that longer edge is maximum to the given size
 
 % Network configuration
@@ -62,6 +62,5 @@ for d = 1:numel(test_datasets)
     save(desc_file, 'qvecs', '-append');   
 
     % Save feature vectors together in one .mat file
-    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));
-	fprintf('>> Save cnn descriptors to %s', desc_file);
+    fprintf('>> Save cnn descriptors to %s', desc_file);
 end
