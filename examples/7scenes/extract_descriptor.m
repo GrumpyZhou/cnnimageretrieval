@@ -38,6 +38,7 @@ end
 for d = 1:numel(test_datasets)
     dataset = test_datasets{d};
     fprintf('>> %s: Processing test dataset...\n', dataset);
+    desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));    
 
     % Extract training images descriptors
     [train_im, n] = get_7scenes_imlist(dataset_root, dataset, 'dataset_train.txt'); 
