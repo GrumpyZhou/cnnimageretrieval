@@ -16,9 +16,10 @@ Lw = whiten.Lw;
 % Calculate similarity matrix for training pairs
 %---------------------------------------------------------------------
 % Set path to store the result
-result_dir = fullfile(data_root, 'cambridge', 'test');
+result_dir = fullfile(data_root, 'cambridge');
 if ~exist(result_dir, 'dir')
     mkdir(result_dir);
+    mkdir(fullfile(result_dir, 'test'));    
 end
 for d = 1:numel(test_datasets)
     dataset = test_datasets{d};
@@ -34,7 +35,7 @@ for d = 1:numel(test_datasets)
     fprintf('>> %s: K-NearestNeighbour Retrieval...\n', dataset);
     sim = vecsLw'*qvecsLw;
     [sim, ranks] = sort(sim, 'descend');
-    idx_file = fullfile(result_dir, sprintf('%s-knn.mat', dataset));
+    idx_file = fullfile(result_dir, 'test', sprintf('%s-knn.mat', dataset));
     save(idx_file, 'sim');
     save(idx_file, 'ranks', '-append');
     fprintf('>> Save knn result to %s', idx_file);
