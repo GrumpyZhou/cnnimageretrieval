@@ -17,7 +17,7 @@ Lw = whiten.Lw;
 %---------------------------------------------------------------------
 % Set path to store the result
 base_dir = fullfile(data_root, '7scenes');
-result_dir = fullfile(result_dir, 'test');
+result_dir = fullfile(base_dir, 'test');
 if ~exist(result_dir, 'dir')
     mkdir(result_dir);
 end
