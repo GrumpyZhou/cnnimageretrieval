@@ -6,7 +6,7 @@ clear;
 
 % Set data folder, change if you have downloaded the data somewhere else
 data_root = fullfile(get_root_cnnimageretrieval(), 'data');
-cambridge_root = '/usr/stud/zhouq/CambridgeLandmark';
+cambridge_root = fullfile(get_root_cnnimageretrieval(), '../../CambridgeLandmark');
 
 % Set test options
 test_datasets = {'ShopFacade', 'KingsCollege', 'OldHospital', 'StMarysChurch'};  % list of datasets to evaluate on
@@ -41,7 +41,7 @@ for d = 1:numel(test_datasets)
     desc_file = fullfile(result_dir,  sprintf('%s.mat', dataset));    
 
     % Extract training images descriptors
-    [train_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_train.txt'); 
+    [train_im, n] = get_imlist(cambridge_root, dataset, 'dataset_train.txt'); 
     fprintf('>> %s: Extracting CNN descriptors for training images...\n', dataset); 
     progressbar(0); vecs = [];   
     for i = 1:n
@@ -52,7 +52,7 @@ for d = 1:numel(test_datasets)
     save(desc_file, 'vecs');
 
     % Extract training images descriptors
-    [test_im, n] = get_cambridge_imlist(cambridge_root, dataset, 'dataset_test.txt');
+    [test_im, n] = get_imlist(cambridge_root, dataset, 'dataset_test.txt');
     fprintf('>> %s: Extracting CNN descriptors for query/test images...\n', dataset); 
     progressbar(0); qvecs = [];	
     for i = 1:n
